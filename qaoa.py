@@ -8,6 +8,7 @@ Created on Tue Jan 25 10:14:48 2021
 import numpy as np
 import qutip as qu
 import qucompsys as qucs
+from collections import Counter
 
 
 def evaluate_cost_fun(z_str, edges):
@@ -127,38 +128,44 @@ def evolution_operator(n_qubits, edges, gammas, betas):
     return evol_oper
 
 
-def comp_basis_measurements(n_samples, dm):
+def evaluate_F_p(params, n_qubits, edges, n_samples):
     """
-    This methon simulates n_samples quantum computational basis measurements 
-        on a composite system by obtaining, for each sampling, a bit string 
-        correspondign to the camputational basis state of the Hilbert space the 
-        state belongs to.
-    
+    This method perform n quantum measurements on final state and evaluate F_p
+    through classical mean of the outcomes
+
     Parameters
     ----------
+    params : 1-D array-like
+        array of parameters [gamma_1, gamma_2, ..., gamma_p, beta_1, beta_2, ..., beta_p].
+    n_qubits : int
+        number of qubits of the state.
+    edges : list of tuples
+        edges of the graph.
     n_samples : int
-        number of samplings want to be executed on the quantum state.
-    dm : Qobj
-        density matrix of a n-qubits state.
+        number of quantum measurements performed.
 
     Returns
     -------
-    outcomes : list 
-        list of outcomes, stored as bit-strings.
+    F_p: float
+        expectation value of the cost function
+
     """
-    L = len(dm.dims[0])
-    outcomes = []
-    for j in range(N):
-        outcome = ''
-        dm_dummy = dm.copy()
-        for i in range(L):   
-            p0_i = (P0[i] * dm_dummy).tr()
-            p1_i = (P1[i] * dm_dummy).tr()
-            if np.random.random() <= p0_i:
-                outcome += '0'
-                dm_dummy = (P0[i]*dm_dummy)/p0_i
-            else:
-                outcome += '1'
-                dm_dummy = (P1[i]*dm_dummy)/p1_i
-        outcomes.append(outcome)
-    return outcomes
+    gammas = params[:int(len(list(params))/2)]
+    betas = params[int(len(list(params))/2):]
+    
+    # initial state (as density matrix):
+    dm_init_state = qu.ket2dm(initial_state(n_qubits))
+    
+    #obtain final state
+    dm_fin_state = evolution_operator(n_qubits, edges, gammas, betas)*dm_init_state*evolution_operator(n_qubits, edges, gammas, betas).dag()
+    
+    #Perform N measurements on each single qubit of final state
+    c_outcomes = Counter(qucs.quantum_measurements(n_samples, dm_fin_state))
+    
+    #Evaluate Fp
+    list_z = list(c_outcomes.keys())
+    list_w = list(c_outcomes.values())
+    Fp = 0
+    for i in range(len(c_outcomes)):
+        Fp += list_w[i]*evaluate_cost_fun(list(list_z)[i], edges)
+    return Fp/n_samples
