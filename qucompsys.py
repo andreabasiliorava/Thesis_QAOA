@@ -146,3 +146,40 @@ def n_proj1(n_qubits, qubit_pos):
     for i in range(n_qubits):
         list_n_proj1.append(qu.tensor([qu.qeye(2)]*i+[qu.ket('1').proj()]+[qu.qeye(2)]*(n_qubits-i-1)))
     return list_n_proj1[qubit_pos]
+
+
+def quantum_measurements(n_samples, dm):
+    """
+    This methon simulates n_samples quantum computational basis measurements 
+        on a composite system by obtaining, for each sampling, a bit string 
+        correspondign to the camputational basis state of the Hilbert space the 
+        state belongs to.
+    
+    Parameters
+    ----------
+    n_samples : int
+        number of samplings want to be executed on the quantum state.
+    dm : Qobj
+        density matrix of a n-qubits state.
+
+    Returns
+    -------
+    outcomes : list 
+        list of outcomes, stored as bit-strings.
+    """
+    n_qubits = len(dm.dims[0])
+    outcomes = []
+    for j in range(n_samples):
+        outcome = ''
+        dm_dummy = dm.copy()
+        for i in range(n_qubits):   
+            p0_i = (n_proj0(n_qubits, i)*dm_dummy).tr()
+            p1_i = (n_proj1(n_qubits, i)*dm_dummy).tr()
+            if np.random.random_sample() <= p0_i:
+                outcome += '0'
+                dm_dummy = (n_proj0(n_qubits, i)*dm_dummy)/p0_i
+            else:
+                outcome += '1'
+                dm_dummy = (n_proj1(n_qubits, i)*dm_dummy)/p1_i
+        outcomes.append(outcome)
+    return outcomes
