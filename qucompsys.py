@@ -148,7 +148,7 @@ def n_proj1(n_qubits, qubit_pos):
     return list_n_proj1[qubit_pos]
 
 
-def quantum_measurements(n_samples, dm):
+def quantum_measurements(n_samples, qstate):
     """
     This methon simulates n_samples quantum computational basis measurements 
         on a composite system by obtaining, for each sampling, a bit string 
@@ -159,8 +159,8 @@ def quantum_measurements(n_samples, dm):
     ----------
     n_samples : int
         number of samplings want to be executed on the quantum state.
-    dm : Qobj
-        density matrix of a n-qubits state.
+    qstate : Qobj
+        pure state or density matrix of a n-qubits state.
 
     Returns
     -------
@@ -171,15 +171,16 @@ def quantum_measurements(n_samples, dm):
     outcomes = []
     for j in range(n_samples):
         outcome = ''
-        dm_dummy = dm.copy()
-        for i in range(n_qubits):   
-            p0_i = (n_proj0(n_qubits, i)*dm_dummy).tr()
-            p1_i = (n_proj1(n_qubits, i)*dm_dummy).tr()
+        qstate_dummy = qstate.copy()
+        for i in range(n_qubits):  
+            M_i = (n_proj0(n_qubits, i)*qstate_dummy)
+            p0_i = M_i.tr()
+            #p1_i = (n_proj1(n_qubits, i)*dm_dummy).tr()
             if np.random.random_sample() <= p0_i:
                 outcome += '0'
-                dm_dummy = (n_proj0(n_qubits, i)*dm_dummy)/p0_i
+                qstate_dummy = M_i/p0_i
             else:
                 outcome += '1'
-                dm_dummy = (n_proj1(n_qubits, i)*dm_dummy)/p1_i
+                dm_dummy = (n_proj1(n_qubits, i)*qstate_dummy)/(1-p0_i)
         outcomes.append(outcome)
     return outcomes
