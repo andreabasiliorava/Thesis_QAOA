@@ -158,7 +158,7 @@ def evaluate_F_p(params, n_qubits, edges, n_samples):
     init_state = initial_state(n_qubits)
     #obtain final state
     #dm_fin_state = evolution_operator(n_qubits, edges, gammas, betas)*dm_init_state*evolution_operator(n_qubits, edges, gammas, betas).dag()
-    fin_state = evolution_operator(n_qubits, edges, gammas, betas)*init_state
+    fin_state = (evolution_operator(n_qubits, edges, gammas, betas)*init_state)
     
     #Perform N measurements on each single qubit of final state
     c_outcomes = Counter(qucs.quantum_measurements(n_samples, fin_state))
