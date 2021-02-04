@@ -170,3 +170,80 @@ def evaluate_F_p(params, n_qubits, edges, n_samples):
     for i in range(len(c_outcomes)):
         Fp += list_w[i]*evaluate_cost_fun(list(list_z)[i], edges)
     return Fp/n_samples
+
+
+def evaluate_F_p_j(params, n_qubits, edges, index_j, n_samples):
+    gammas = params[:int(len(list(params))/2)]
+    betas = params[int(len(list(params))/2):]
+    edge = edges[index_j]
+    
+    # initial state (as density matrix):
+    #dm_init_state = qu.ket2dm(initial_state(n_qubits))
+    init_state = initial_state(n_qubits)
+    #obtain final state
+    #dm_fin_state = evolution_operator(n_qubits, edges, gammas, betas)*dm_init_state*evolution_operator(n_qubits, edges, gammas, betas).dag()
+    fin_state = (evolution_operator(n_qubits, edges, gammas, betas)*init_state)
+    
+    #perform n_samples measurments on qubits in edge[0] and edge[1]
+    outcomes = []
+    for j in range(n_samples):
+        outcome = ''
+        qstate_dummy = fin_state.copy()
+        for i in edge:
+            outcome_i, qstate_dummy = qucs.single_qubit_measurement(qstate_dummy, i)
+            outcome += outcome_i
+        outcomes.append(outcome)
+    c_outcomes = Counter(outcomes)
+    
+    #evaluate F_p_j
+    list_z = list(c_outcomes.keys())
+    list_w = list(c_outcomes.values())
+    F_p_j = 0
+    for i in range(len(list_w)):
+        F_p_j += list_w[i]*(int(list_z[0]) - int(list_z[1]))**2
+    return F_p_j
+
+
+#Define a function that evaluate the gradient estimator g_t
+def doubly_stoc_grad_max_cut(params, n_qubits, edges, n_samples):
+    """
+    This method estimates the gradient of a function through 
+    doubly stochastic method
+
+    Parameters
+    ----------
+    params : 1-D array like
+        array of parameters of the function.
+
+
+    Returns
+    -------
+    g_t: 1-D array
+        array representing the gradient of the function in that parameters-space point
+
+    """
+    d = len(list(params))
+    a_params = np.array(params)
+    g_t = np.zeros(d)
+    m = len(edges)
+    for i in range(d):
+        #obtain indecies for the samplings
+        index_j = np.random.randint(m)
+        #index_r not necessary (they behave in the same way)
+        #index_j' not necessary (they behave in the same way)
+        index_k = np.random.randint(2)
+        
+        #obtain forward parameters
+        e_i = np.zeros(d)
+        e_i[i] = 1.0
+        if index_k == 0:
+            forward_params = a_params + np.pi*0.5*e_i
+            epsilon_i = 0.5
+        else:
+            forward_params = a_params - np.pi*0.5*e_i
+            epsilon_i = -0.5
+        if (i+1)%2 == 0:
+            g_t[i] = evaluate_F_p_j(forward_params, index_j, n_qubits, edges, n_samples)*epsilon_i*2*n_qubits*m
+        else:
+            g_t[i] = -evaluate_F_p_j(forward_params, index_j, n_qubits, edges, n_samples)*epsilon_i*2*m**2
+    return g_t

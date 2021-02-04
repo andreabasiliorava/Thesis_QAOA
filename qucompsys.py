@@ -190,8 +190,7 @@ def quantum_measurements(n_samples, qstate):
         outcome = ''
         qstate_dummy = qstate.copy()
         for i in range(n_qubits):
-            outcome_i, qstate_i = single_qubit_measurement(qstate_dummy, i)
+            outcome_i, qstate_dummy = single_qubit_measurement(qstate_dummy, i)
             outcome += outcome_i
-            qstate_dummy = qstate_i
         outcomes.append(outcome)
     return outcomes
