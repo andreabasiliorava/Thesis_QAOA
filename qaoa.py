@@ -10,6 +10,10 @@ import qutip as qu
 import qucompsys as qucs
 from collections import Counter
 
+def single_term_cost_fun (z_str):
+    list_z = list(z_str)
+    return (int(list_z[0]) - int(list_z[1]))**2
+
 
 def evaluate_cost_fun(z_str, edges):
     """This method evaluates the object function of the MaxCut problem
@@ -49,20 +53,6 @@ def minus_analitic_F_1(parameters, graph, edges):
         -0.25*np.sin(beta)**2*np.cos(gamma)**(degree_u+degree_v-2-2*lambda_uv)*(1-np.cos(2*gamma)**lambda_uv)
         f_1 += c_uv
     return -f_1
-
-
-def initial_params(n_levels):
-    """This method generates randomly the intial parameters near zero\n
-    Parameters:\n
-        n_levels: choosen levels of the QAOA algorithm\n
-    Returns:\n
-        an array with shape 2*n_levels (gammas and betas)\n
-    Raise:\n
-        ValueError if number of levels is less than 1"""
-    if n_levels < 1:
-        raise ValueError('number of levels must be > 0, but is {}'.format(n_levels))
-    init_params = 0.01*np.random.rand(2, n_levels)
-    return init_params
 
 
 def initial_state(n_qubits):
@@ -198,17 +188,17 @@ def evaluate_F_p(params, n_qubits, edges, n_samples):
     return Fp/n_samples
 
 
-def evaluate_F_p_j(params, n_qubits, edges, index_j, n_samples):
+def evaluate_F_p_j(params, n_qubits, index_j, edges, n_samples):
     gammas = params[:int(len(list(params))/2)]
     betas = params[int(len(list(params))/2):]
     edge = edges[index_j]
     
     # initial state (as density matrix):
     #dm_init_state = qu.ket2dm(initial_state(n_qubits))
-    init_state = initial_state(n_qubits)
+    init_state = qaoa.initial_state(n_qubits)
     #obtain final state
     #dm_fin_state = evolution_operator(n_qubits, edges, gammas, betas)*dm_init_state*evolution_operator(n_qubits, edges, gammas, betas).dag()
-    fin_state = (evolution_operator(n_qubits, edges, gammas, betas)*init_state)
+    fin_state = (qaoa.evolution_operator(n_qubits, edges, gammas, betas)*init_state)
     
     #perform n_samples measurments on qubits in edge[0] and edge[1]
     outcomes = []
@@ -226,14 +216,14 @@ def evaluate_F_p_j(params, n_qubits, edges, index_j, n_samples):
     list_w = list(c_outcomes.values())
     F_p_j = 0
     for i in range(len(list_w)):
-        F_p_j += list_w[i]*(int(list_z[0]) - int(list_z[1]))**2
-    return F_p_j
+        F_p_j += list_w[i]*single_term_cost_fun(list(list_z)[i])
+    return F_p_j/n_samples
 
 #Define a function that evaluate the gradient estimator g_t
 def fin_diff_grad(function, params, args=(), increment=0.01):
     """
     This method estimates the gradient of a function through finite
-    differences method
+    differences derivative estimation
 
     Parameters
     ----------
@@ -287,6 +277,7 @@ def doubly_stoc_grad_max_cut(params, n_qubits, edges, n_samples):
     g_t = np.zeros(d)
     m = len(edges)
     for i in range(d):
+        
         #obtain indecies for the samplings
         index_j = np.random.randint(m)
         #index_r not necessary (they behave in the same way)
@@ -302,8 +293,7 @@ def doubly_stoc_grad_max_cut(params, n_qubits, edges, n_samples):
         else:
             forward_params = a_params - np.pi*0.5*e_i
             epsilon_i = -0.5
-        if (i+1)%2 == 0:
-            g_t[i] = evaluate_F_p_j(forward_params, index_j, n_qubits, edges, n_samples)*epsilon_i*2*n_qubits*m
-        else:
-            g_t[i] = -evaluate_F_p_j(forward_params, index_j, n_qubits, edges, n_samples)*epsilon_i*2*m**2
+            
+        #obtain gradient estimator
+        g_t[i] = evaluate_F_p_j(forward_params, n_qubits ,index_j, edges, n_samples)*epsilon_i*2*m
     return g_t
