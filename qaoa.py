@@ -24,6 +24,32 @@ def evaluate_cost_fun(z_str, edges):
         obj += (int(z_list[edge[0]])-int(z_list[edge[1]]))**2
     return obj
 
+def analitic_F_1(parameters, graph, edges):
+    f_1 = 0
+    gamma = parameters[0]
+    beta = parameters[1]
+    for edge in edges:
+        degree_u = gr.node_degree(graph, edge[0])
+        degree_v = gr.node_degree(graph, edge[1])
+        lambda_uv = gr.common_neighbours(graph, edge[0], edge[1])
+        c_uv = 0.5+0.25*np.sin(4*beta)*np.sin(gamma)*(np.cos(gamma)**(degree_u-1) + np.cos(gamma)**(degree_v-1))
+        -0.25*np.sin(beta)**2*np.cos(gamma)**(degree_u+degree_v-2-2*lambda_uv)*(1-np.cos(2*gamma)**lambda_uv)
+        f_1 += c_uv
+    return f_1
+
+def minus_analitic_F_1(parameters, graph, edges):
+    f_1 = 0
+    gamma = parameters[0]
+    beta = parameters[1]
+    for edge in edges:
+        degree_u = gr.node_degree(graph, edge[0])
+        degree_v = gr.node_degree(graph, edge[1])
+        lambda_uv = gr.common_neighbours(graph, edge[0], edge[1])
+        c_uv = 0.5+0.25*np.sin(4*beta)*np.sin(gamma)*(np.cos(gamma)**(degree_u-1) + np.cos(gamma)**(degree_v-1))
+        -0.25*np.sin(beta)**2*np.cos(gamma)**(degree_u+degree_v-2-2*lambda_uv)*(1-np.cos(2*gamma)**lambda_uv)
+        f_1 += c_uv
+    return -f_1
+
 
 def initial_params(n_levels):
     """This method generates randomly the intial parameters near zero\n
@@ -202,6 +228,40 @@ def evaluate_F_p_j(params, n_qubits, edges, index_j, n_samples):
     for i in range(len(list_w)):
         F_p_j += list_w[i]*(int(list_z[0]) - int(list_z[1]))**2
     return F_p_j
+
+#Define a function that evaluate the gradient estimator g_t
+def fin_diff_grad(function, params, args=(), increment=0.01):
+    """
+    This method estimates the gradient of a function through finite
+    differences method
+
+    Parameters
+    ----------
+    function: function
+        function of which the gradient has to be evaluated
+    params : 1-D array like
+        array of parameters of the function.
+    args_fun : tuple
+        optional arguments that the function may need. default = 0.01
+    increment: float
+        increment that define the finite differences method. default = 0.01
+
+    Returns
+    -------
+    g_t: 1-D array
+        array representing the gradient of the function in that parameters-space point
+
+    """
+    if not isinstance(args, tuple):
+        args = (args,)
+    d = len(list(params))
+    a_params = np.array(params)
+    g_t = np.zeros(d)
+    for i in range(d):
+        e_i = np.zeros(d)
+        e_i[i] = 1.0
+        g_t[i] = (function(a_params+e_i*increment, *args)-function(a_params-e_i*increment, *args))/(2*increment)
+    return g_t
 
 
 #Define a function that evaluate the gradient estimator g_t

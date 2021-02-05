@@ -165,7 +165,7 @@ def single_qubit_measurement(qstate, qubit_pos):
 
 def quantum_measurements(n_samples, qstate):
     """
-    This methon simulates n_samples quantum computational basis measurements 
+    This method simulates n_samples quantum computational basis measurements 
         on a composite system by obtaining, for each sampling, a bit string 
         correspondign to the camputational basis state of the Hilbert space the 
         state belongs to.
