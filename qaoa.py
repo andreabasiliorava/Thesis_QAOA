@@ -8,6 +8,7 @@ Created on Tue Jan 25 10:14:48 2021
 import numpy as np
 import qutip as qu
 import qucompsys as qucs
+import graphs as gr
 from collections import Counter
 
 def single_term_cost_fun (z_str):
@@ -195,10 +196,10 @@ def evaluate_F_p_j(params, n_qubits, index_j, edges, n_samples):
     
     # initial state (as density matrix):
     #dm_init_state = qu.ket2dm(initial_state(n_qubits))
-    init_state = qaoa.initial_state(n_qubits)
+    init_state = initial_state(n_qubits)
     #obtain final state
     #dm_fin_state = evolution_operator(n_qubits, edges, gammas, betas)*dm_init_state*evolution_operator(n_qubits, edges, gammas, betas).dag()
-    fin_state = (qaoa.evolution_operator(n_qubits, edges, gammas, betas)*init_state)
+    fin_state = (evolution_operator(n_qubits, edges, gammas, betas)*init_state)
     
     #perform n_samples measurments on qubits in edge[0] and edge[1]
     outcomes = []
