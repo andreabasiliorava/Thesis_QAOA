@@ -178,15 +178,14 @@ def evaluate_F_p(params, n_qubits, edges, n_samples):
     fin_state = (evolution_operator(n_qubits, edges, gammas, betas)*init_state)
     
     #Perform N measurements on each single qubit of final state
-    outcomes = qucs.quantum_measurements(n_samples, fin_state)
-    dict_outcomes = {}
-    for outcome in outcomes:
-        dict_outcomes[outcomes.count(outcome)] = outcome
+    c_outcomes = Counter(qucs.quantum_measurements(n_samples, fin_state))
     
     #Evaluate Fp
+    list_z = list(c_outcomes.keys())
+    list_w = list(c_outcomes.values())
     Fp = 0
-    for w_i in dict_outcomes:
-        Fp += w_i*evaluate_cost_fun(dict_outcomes[w_i], edges)
+    for i in range(len(c_outcomes)):
+        Fp += list_w[i]*evaluate_cost_fun(list(list_z)[i], edges)
     return Fp/n_samples
 
 
