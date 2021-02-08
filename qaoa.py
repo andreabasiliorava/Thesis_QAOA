@@ -105,9 +105,9 @@ def prob_hamilt(n_qubits, edges):
     if n_qubits < 2:
         raise ValueError('number of qubits must be > 1, but is {}'.format(n_qubits))
     list_double_sigmaz = []
-    for j in range(len(edges)):
+    for edge in edges:
         list_double_sigmaz.append(
-            qucs.n_sigmaz(n_qubits,edges[j][0])*qucs.n_sigmaz(n_qubits,edges[j][1])
+            qucs.n_sigmaz(n_qubits,edge[0])*qucs.n_sigmaz(n_qubits,edge[1])
             )
     return 0.5*(len(edges)*qucs.n_qeye(n_qubits)-sum(list_double_sigmaz))
 
