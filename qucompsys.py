@@ -194,3 +194,9 @@ def quantum_measurements(n_samples, qstate):
             outcome += outcome_i
         outcomes.append(outcome)
     return outcomes
+
+def comp_basis_prob_dist(qstate):
+    prob_dist = []
+    for component in qstate.full():
+        prob_dist.append(float(abs(component))**2)
+    return prob_dist
