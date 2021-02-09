@@ -95,9 +95,9 @@ for prob in probabilities:
         energy = ising.evaluate_energy_p(parameters, n_qubits, edges, bin_prob_dist, 1000)
         energies.append(energy)
         prob_dist = qucs.comp_basis_prob_dist(fin_state)
-        prob_distributions.append(prob_dist)
+        prob_distributions.append(np.array(prob_dist))
     
-    ising_results.append([prob]+[sum(energies)/N]+[sum(magnetizations)/N]+sum[prob_distributions]/N)
+    ising_results.append([prob]+[sum(energies)/N]+[sum(magnetizations)/N]+list(sum[prob_distributions]/N))
     np.savetxt(file1, [prob]+[sum(energies)/N]+[sum(magnetizations)/N]+sum[prob_distributions]/N)
 
     file2.close()
