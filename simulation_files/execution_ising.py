@@ -26,9 +26,9 @@ np.random.seed(4)
 #main code
 
 # grid graph
-n_nodes = 4
-nodes = np.arange(0, n_nodes, 1)
-edges = [(0, 1), (1, 2), (2, 3), (3, 0)]
+#n_nodes = 4
+#nodes = np.arange(0, n_nodes, 1)
+#edges = [(0, 1), (1, 2), (2, 3), (3, 0)]
 
 # grid graph
 #n_nodes = 6
@@ -36,9 +36,9 @@ edges = [(0, 1), (1, 2), (2, 3), (3, 0)]
 #edges = [(0, 1), (1, 2), (1,4), (2, 3), (3, 4), (4, 5), (5, 0)]
 
 # grid graph
-# n_nodes = 9
-# nodes = np.arange(0, n_nodes, 1)
-# edges = [(0, 1), (0,3), (1, 2), (1, 4), (2, 5), (3,4), (3,6), (4, 5), (4, 7), (5,8), (6, 7), (7, 8)]
+n_nodes = 9
+nodes = np.arange(0, n_nodes, 1)
+edges = [(0, 1), (0,3), (1, 2), (1, 4), (2, 5), (3,4), (3,6), (4, 5), (4, 7), (5,8), (6, 7), (7, 8)]
 
 
 n_qubits = n_nodes
@@ -133,13 +133,13 @@ def evaluate_energy_p(params, n_qubits, edges, bin_prob_dist, n_samples):
     return Ep/n_samples
 
 
-n_levels = 1
-n_steps = 30
+n_levels = 1 #depth QAOA
+n_steps = 30 #steps gradient descent
 eta = 0.05
 beta_1 = 0.9
 beta_2 = 0.999
 epsilon = 1e-8
-N = 5
+N = 5 #number of times gradient descent is executed for a given probability
 
 init_state = qaoa.initial_state(n_qubits)
 
@@ -185,9 +185,9 @@ for j in range(N):
     energy = ising.evaluate_energy_ising(most_probable_state, edges, bin_prob_dist)    
     magnetization = ising.evaluate_magnetization_ising(most_probable_state)
     
-    print([prob, j, energy, magnetization])
+    print([prob, j]+parameters.tolist()+[energy, magnetization])
 
-    np.savetxt(file1, [[prob, j, parameters, energy, magnetization]])
+    np.savetxt(file1, [[prob, j]+ parameters.tolist()+[energy, magnetization]])
     np.savetxt(file3, [prob_dist])
 
 file1.close()
