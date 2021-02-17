@@ -10,6 +10,8 @@ import qutip as qu
 import qucompsys as qucs
 import graphs as gr
 from collections import Counter
+#from simulation_ising_Davide import n_qubits as
+
 
 def single_term_cost_fun (z_str):
     list_z = list(z_str)
