@@ -147,12 +147,14 @@ def n_proj1(n_qubits, qubit_pos):
         list_n_proj1.append(qu.tensor([qu.qeye(2)]*i+[qu.ket('1').proj()]+[qu.qeye(2)]*(n_qubits-i-1)))
     return list_n_proj1[qubit_pos]
 
+
 def single_qubit_measurement(qstate, qubit_pos):
     n_qubits = len(qstate.dims[0])
-    if qstate.dims[1][0] == 1:
-        qstate = qu.ket2dm(qstate)
     M_i = (n_proj0(n_qubits, qubit_pos)*qstate)
-    p0_i = M_i.tr()
+    if qstate.dims[1][0] == 1:
+        p0_i = qstate.dag()*M_i
+    else:
+        p0_i = M_i.tr()
     #p1_i = (n_proj1(n_qubits, i)*dm_dummy).tr()
     if np.random.random_sample() <= p0_i:
         outcome = '0'
@@ -183,8 +185,6 @@ def quantum_measurements(n_samples, qstate):
         list of outcomes, stored as bit-strings.
     """
     n_qubits = len(qstate.dims[0])
-    if qstate.dims[1][0] == 1:
-        qstate = qu.ket2dm(qstate)
     outcomes = []
     for j in range(n_samples):
         outcome = ''
