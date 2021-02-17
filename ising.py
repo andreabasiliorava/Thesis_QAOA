@@ -60,10 +60,11 @@ def evolution_operator_ising(n_qubits, edges, gammas, betas, bin_prob_dist):
 
 def single_qubit_measurement_ising(qstate, qubit_pos):
     n_qubits = len(qstate.dims[0])
-    if qstate.dims[1][0] == 1:
-        qstate = qu.ket2dm(qstate)
     M_i = (qucs.n_proj0(n_qubits, qubit_pos)*qstate)
-    p0_i = M_i.tr()
+    if qstate.dims[1][0] == 1:
+        p0_i = qstate.dag()*M_i
+    else:
+        p0_i = M_i.tr()
     #p1_i = (n_proj1(n_qubits, i)*dm_dummy).tr()
     if np.random.random_sample() <= p0_i:
         outcome = [1]
@@ -76,8 +77,6 @@ def single_qubit_measurement_ising(qstate, qubit_pos):
 
 def quantum_measurements_ising(n_samples, qstate):
     n_qubits = len(qstate.dims[0])
-    if qstate.dims[1][0] == 1:
-        qstate = qu.ket2dm(qstate)
     outcomes = []
     for j in range(n_samples):
         outcome = []
