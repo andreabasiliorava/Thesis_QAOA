@@ -24,18 +24,18 @@ from collections import Counter
 np.random.seed(4)
 #main code
 
-# grid graph
+# graph1
 # n_nodes = 5
 # nodes = np.arange(0, n_nodes, 1)
 # edges = [(0, 2), (1, 2), (1, 4), (2, 3), (2, 4), (3, 4)]
 
-# grid graph
+# graph2
 n_nodes = 7
 nodes = np.arange(0, n_nodes, 1)
 edges = [(0, 1), (0, 2), (0, 3), (0, 5), (1, 3), (1, 4), (1, 6), (2, 3), (2, 4), 
           (2, 5), (2, 6), (3, 4), (3, 6), (4, 5), (4, 6)]
 
-# grid graph
+# graph3
 # n_nodes = 9
 # nodes = np.arange(0, n_nodes, 1)
 # edges = [(0, 1), (0, 2), (0, 4), (0, 5), (0, 7), (0, 8), (1, 2), (1, 3), (1, 5), 
