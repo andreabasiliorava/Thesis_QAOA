@@ -26,9 +26,9 @@ np.random.seed(4)
 #main code
 
 # grid graph
-#n_nodes = 4
-#nodes = np.arange(0, n_nodes, 1)
-#edges = [(0, 1), (1, 2), (2, 3), (3, 0)]
+n_nodes = 4
+nodes = np.arange(0, n_nodes, 1)
+edges = [(0, 1), (1, 2), (2, 3), (3, 0)]
 
 # grid graph
 #n_nodes = 6
@@ -36,9 +36,9 @@ np.random.seed(4)
 #edges = [(0, 1), (1, 2), (1,4), (2, 3), (3, 4), (4, 5), (5, 0)]
 
 # grid graph
-n_nodes = 9
-nodes = np.arange(0, n_nodes, 1)
-edges = [(0, 1), (0,3), (1, 2), (1, 4), (2, 5), (3,4), (3,6), (4, 5), (4, 7), (5,8), (6, 7), (7, 8)]
+# n_nodes = 9
+# nodes = np.arange(0, n_nodes, 1)
+# edges = [(0, 1), (0,3), (1, 2), (1, 4), (2, 5), (3,4), (3,6), (4, 5), (4, 7), (5,8), (6, 7), (7, 8)]
 
 
 n_qubits = n_nodes
@@ -133,13 +133,13 @@ def evaluate_energy_p(params, n_qubits, edges, bin_prob_dist, n_samples):
     return Ep/n_samples
 
 
-n_levels = 1 #depth QAOA
-n_steps = 30 #steps gradient descent
+n_levels = 2 #depth QAOA
+n_steps = 20 #steps gradient descent
 eta = 0.05
 beta_1 = 0.9
 beta_2 = 0.999
 epsilon = 1e-8
-N = 5 #number of times gradient descent is executed for a given probability
+N = 2 #number of times gradient descent is executed for a given probability
 
 init_state = qaoa.initial_state(n_qubits)
 
@@ -153,7 +153,8 @@ for j in range(N):
     bin_prob_dist = ising.binomial_dist(prob, edges)
     print(bin_prob_dist)
     #Adam
-    parameters = np.array(np.random.uniform(-np.pi/4, np.pi/4, 2*n_levels)) 
+    #parameters = np.array(np.random.uniform(-np.pi/4, np.pi/4, 2*n_levels)) 
+    parameters = 0.1*np.array(np.random.random_sample(2*n_levels))
     m_t = np.zeros(2*n_levels)
     v_t = np.zeros(2*n_levels)
     t = 0

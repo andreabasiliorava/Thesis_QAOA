@@ -25,19 +25,21 @@ np.random.seed(4)
 #main code
 
 # grid graph
-n_nodes = 5
-nodes = np.arange(0, n_nodes, 1)
-edges = [(0, 2), (1, 2), (1, 4), (2, 3), (2, 4), (3, 4)]
+# n_nodes = 5
+# nodes = np.arange(0, n_nodes, 1)
+# edges = [(0, 2), (1, 2), (1, 4), (2, 3), (2, 4), (3, 4)]
 
 # grid graph
-#n_nodes = 7
-#nodes = np.arange(0, n_nodes, 1)
-#edges = [(0, 1), (0, 2), (0, 3), (0, 5), (1, 3), (1, 4), (1, 6), (2, 3), (2, 4), (2, 5), (2, 6), (3, 4), (3, 6), (4, 5), (4, 6)]
+n_nodes = 7
+nodes = np.arange(0, n_nodes, 1)
+edges = [(0, 1), (0, 2), (0, 3), (0, 5), (1, 3), (1, 4), (1, 6), (2, 3), (2, 4), 
+          (2, 5), (2, 6), (3, 4), (3, 6), (4, 5), (4, 6)]
 
 # grid graph
 # n_nodes = 9
 # nodes = np.arange(0, n_nodes, 1)
-# edges = [(0, 1), (0, 2), (0, 4), (0, 5), (0, 7), (0, 8), (1, 2), (1, 3), (1, 5), (2, 4), (2, 5), (2, 7), (2, 8), (3, 4), (4, 5), (5, 6), (5, 8), (6, 7), (7, 8)]
+# edges = [(0, 1), (0, 2), (0, 4), (0, 5), (0, 7), (0, 8), (1, 2), (1, 3), (1, 5), 
+#          (2, 4), (2, 5), (2, 7), (2, 8), (3, 4), (4, 5), (5, 6), (5, 8), (6, 7), (7, 8)]
 
 
 n_qubits = n_nodes
@@ -128,8 +130,8 @@ def evaluate_F_p(params, n_qubits, edges, n_samples):
     return Fp/n_samples
 
 
-n_levels = 1 #depth QAOA
-n_steps = 30 #steps gradient descent
+n_levels = 2 #depth QAOA
+n_steps = 20 #steps gradient descent
 eta = 0.05
 beta_1 = 0.9
 beta_2 = 0.999
@@ -145,9 +147,11 @@ file3 = open(f"qaoa_maxcut_confs_nodes_{n_nodes}_level_{n_levels}.dat", 'w')
 for j in range(N):
     
     #Adam
-    gammas = np.array(np.random.uniform(-np.pi/2, np.pi/2, n_levels))
-    betas = np.array(np.random.uniform(-np.pi/4, np.pi/4, n_levels))
-    parameters = np.array(list(gammas)+list(betas))
+    # gammas = np.array(np.random.uniform(-np.pi/2, np.pi/2, n_levels))
+    # betas = np.array(np.random.uniform(-np.pi/4, np.pi/4, n_levels))
+    # parameters = np.array(list(gammas)+list(betas))
+    #parameters = np.array(np.random.uniform(-np.pi/4, np.pi/4, 2*n_levels))
+    parameters = 0.1*np.array(np.random.random_sample(2*n_levels))
     m_t = np.zeros(2*n_levels)
     v_t = np.zeros(2*n_levels)
     t = 0
